@@ -62,7 +62,7 @@ const AppContent = () => {
             </Routes>
           </main>
         </div>
-        <Footer /> {/* ✅ Always visible */}
+        {location.pathname !== "/login" && <Footer />}
       </div>
     </Router>
   );
