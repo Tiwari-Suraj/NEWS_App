@@ -14,7 +14,6 @@ import Footer from "./Pages/Footer";
 import Login from "./Pages/Login";
 import VideoPage from "./Pages/VideoPage";
 import Home from "./Pages/Home";
-import ProtectedRoute from "./Components/ProtectedRoute";
 
 const AppContent = () => {
   const { selectedVideo } = useSelector((state) => state.videos);
@@ -23,46 +22,44 @@ const AppContent = () => {
   return (
     <Router>
       <div className="min-h-screen flex flex-col bg-white">
-        {isAuthenticated && <Navbar />}
-        <div
-          className={`flex flex-1 ${isAuthenticated ? "pt-16 md:pt-20" : ""}`}
-        >
-          {isAuthenticated && !selectedVideo && <Sidebar />}
+        {/* Always show navbar */}
+        <Navbar />
+
+        <div className="flex flex-1 pt-16 md:pt-20">
+          {/* Always show sidebar when no video is selected */}
+          {!selectedVideo && <Sidebar />}
 
           <main
             className={`flex-1 ${
-              !selectedVideo && isAuthenticated ? "md:ml-0" : ""
+              !selectedVideo ? "md:ml-0" : ""
             } overflow-y-auto`}
           >
             <Routes>
+              {/* Optional login route - users can still login if they want */}
               <Route
                 path="/login"
                 element={
                   isAuthenticated ? <Navigate to="/" replace /> : <Login />
                 }
               />
+
+              {/* Main route - no authentication required */}
               <Route
                 path="/"
-                element={
-                  <ProtectedRoute>
-                    {selectedVideo ? <VideoPage /> : <Home />}
-                  </ProtectedRoute>
-                }
+                element={selectedVideo ? <VideoPage /> : <Home />}
               />
-              <Route
-                path="*"
-                element={
-                  isAuthenticated ? (
-                    <Navigate to="/" replace />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
+
+              {/* Video route for direct video access */}
+              <Route path="/video/:id" element={<VideoPage />} />
+
+              {/* Catch all route - redirect to home instead of login */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
         </div>
-        {location.pathname !== "/login" && <Footer />}
+
+        {/* Always show footer except on login page */}
+        {window.location.pathname !== "/login" && <Footer />}
       </div>
     </Router>
   );
